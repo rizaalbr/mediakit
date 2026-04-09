@@ -534,21 +534,22 @@
       "Last updated " + d.toLocaleDateString("en-GB", {day:"numeric",month:"long",year:"numeric"});
   }
 
-  async function loadSheet() {
-    try {
-      const res = await fetch(SHEET_CSV_URL);
-      if (!res.ok) throw new Error("no sheet");
-      const text = await res.text();
-      const lines = text.trim().split("\n");
-      const row = lines[1].split(",");
-      const impressions = parseInt(row[0]) || null;
-      const profileViews = parseInt(row[1]) || null;
-      renderStats(impressions, profileViews);
-    } catch {
-      renderStats(null, null);
-    }
+async function loadSheet() {
+  try {
+    const PROXY = "https://corsproxy.io/?";
+    const res = await fetch(PROXY + encodeURIComponent(SHEET_CSV_URL));
+    if (!res.ok) throw new Error("sheet fetch failed");
+    const text = await res.text();
+    const lines = text.trim().split("\n");
+    if (lines.length < 2) throw new Error("no data row");
+    const row = lines[1].split(",");
+    const impressions = parseInt(row[0].trim()) || null;
+    const profileViews = parseInt(row[1].trim()) || null;
+    renderStats(impressions, profileViews);
+  } catch {
+    renderStats(null, null);
   }
-
+}
   function initFadeIn() {
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } });
