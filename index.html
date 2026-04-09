@@ -536,16 +536,10 @@
 
 async function loadSheet() {
   try {
-    const PROXY = "https://corsproxy.io/?";
-    const res = await fetch(PROXY + encodeURIComponent(SHEET_CSV_URL));
-    if (!res.ok) throw new Error("sheet fetch failed");
-    const text = await res.text();
-    const lines = text.trim().split("\n");
-    if (lines.length < 2) throw new Error("no data row");
-    const row = lines[1].split(",");
-    const impressions = parseInt(row[0].trim()) || null;
-    const profileViews = parseInt(row[1].trim()) || null;
-    renderStats(impressions, profileViews);
+    const res = await fetch("data.json");
+    if (!res.ok) throw new Error("no data");
+    const json = await res.json();
+    renderStats(json.impressions_30d, json.profile_views_30d);
   } catch {
     renderStats(null, null);
   }
